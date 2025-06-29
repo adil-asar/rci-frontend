@@ -26,7 +26,7 @@ const Layout = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post(`${apiUrl}/auth/logout`, {}, { withCredentials: true });
+    
       localStorage.removeItem('rci-user');
       localStorage.removeItem('rci-token');
       window.location.href = '/signin';
@@ -52,14 +52,16 @@ const Layout = () => {
 
 function App() {
   const [theme, setTheme] = useState<Theme>('dark');
-
   const token = localStorage.getItem('rci-token');
   const userData = localStorage.getItem('rci-user');
   const user = userData ? JSON.parse(userData) : null;
 
-  const adminRoute = token && user
-    ? <Route path='/admin' element={<AdminDashboard />} />
-    : null;
+  const adminRoute = token && user?.role === 'admin' ? (
+  <Route path='/admin' element={<AdminDashboard />} />
+) : (
+  <Route path='/admin' element={<NotFound404 />} />
+);
+
 
   const routes = createRoutesFromElements(
     <Route>
@@ -69,8 +71,6 @@ function App() {
         <Route path='/contact' element={<Contact />} />
         <Route path='/ordernow/:id' element={<OrderForm />} />
         <Route path='/404NotFound' element={<NotFound404 />} />
-
-        {/* Insert conditional admin route */}
         {adminRoute}
       </Route>
 

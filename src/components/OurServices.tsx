@@ -83,7 +83,7 @@ const OurServices = () => {
     if (value == 'learnmore') {
       navigate(`/services/${slug}`, { state: item });
     } else {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('rci-token');
       if (!token) {
         handleModalFunc();
       } else {
