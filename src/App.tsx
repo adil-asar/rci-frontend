@@ -56,11 +56,7 @@ function App() {
   const userData = localStorage.getItem('rci-user');
   const user = userData ? JSON.parse(userData) : null;
 
-  const adminRoute = token && user?.role === 'admin' ? (
-  <Route path='/admin' element={<AdminDashboard />} />
-) : (
-  <Route path='/admin' element={<NotFound404 />} />
-);
+
 
 
   const routes = createRoutesFromElements(
@@ -71,7 +67,7 @@ function App() {
         <Route path='/contact' element={<Contact />} />
         <Route path='/ordernow/:id' element={<OrderForm />} />
         <Route path='/404NotFound' element={<NotFound404 />} />
-        {adminRoute}
+          <Route path='/admin' element={<AdminDashboard />} />
       </Route>
 
       <Route path='/signin' element={<SignIn />} />

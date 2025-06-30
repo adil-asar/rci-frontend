@@ -105,7 +105,7 @@ const OrderForm = () => {
 
     // Append all selected files
     files.forEach((file) => {
-      formData.append("documents", file); // multer expects `documents` field for array
+      formData.append("documents", file); 
     });
 
     const url = `http://localhost:5000/api/orders/create`;
