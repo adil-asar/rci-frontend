@@ -27,6 +27,7 @@ const formSchema = z.object({
 const SignIn = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [loginError, setLoginError] = useState(""); // Add error state
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -53,70 +54,55 @@ const SignIn = () => {
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-  setIsLoading(true);
+    setIsLoading(true);
+    setLoginError(""); // Reset error on submit
 
-  try {
-    console.log("🔐 Attempting to sign in...");
+    try {
+      const loginRes = await axios.post("http://localhost:5000/api/users/signin", {
+        email: values.email,
+        password: values.password,
+      });
 
-    // Step 1: Login API
-    const loginRes = await axios.post("http://localhost:5000/api/users/signin", {
-      email: values.email,
-      password: values.password,
-    });
+      if (loginRes.status === 200 && loginRes.data?.user_Token) {
+        const token = loginRes.data.user_Token;
+        localStorage.setItem("rci-token", token);
 
-    console.log("📡 Login API response:", loginRes);
-
-    if (loginRes.status === 200 && loginRes.data?.user_Token) {
-      const token = loginRes.data.user_Token;
-      console.log("✅ Login successful. Token received:", token);
-
-      // Save token
-      localStorage.setItem("rci-token", token);
-
-      try {
-        // Step 2: Validate user
-        console.log("📡 Fetching user data using token...");
         const userRes = await axios.get("http://localhost:5000/api/users/validate", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        if (userRes.status === 200 && userRes.data) {
+        if (userRes.status === 200 && userRes.data?.user) {
           const user = userRes.data.user;
-          console.log("✅ User validated:", user);
-
           localStorage.setItem("rci-user", JSON.stringify(user));
 
-    
           if (user.role === "admin") {
-            console.log("Redirecting to /admin");
             navigate("/admin");
           } else {
-            console.log("Redirecting to /");
             navigate("/");
           }
         } else {
-          console.error(" User validation failed. Status:", userRes.status);
+          setLoginError("User validation failed.");
         }
-      } catch (userError) {
-        console.error(" Error during user validation:", userError);
+      } else {
+        setLoginError("Login failed. No token received.");
       }
-    } else {
-      console.error("Login failed. No token received.");
+    } catch (loginError) {
+      if (axios.isAxiosError(loginError)) {
+        const msg =
+          loginError.response?.data?.message ||
+          loginError.response?.data?.error ||
+          "Login failed. Please try again.";
+        setLoginError(msg);
+      } else {
+        setLoginError("An unexpected error occurred.");
+      }
+    } finally {
+      setIsLoading(false);
     }
-  } catch (loginError) {
-    if (axios.isAxiosError(loginError)) {
-      console.error(" Login error (API):", loginError.response?.data || loginError.message);
-    } else {
-      console.error(" Login error (Other):", loginError);
-    }
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
-  // Redirect to home if already logged in
   useEffect(() => {
     const userData = localStorage.getItem("user");
     if (userData) {
@@ -188,6 +174,11 @@ const SignIn = () => {
             >
               {isLoading ? "Signing in..." : "Sign in"}
             </Button>
+
+            {/* Error message under Sign In */}
+            {loginError && (
+              <p className="text-red-500 text-sm text-center">{loginError}</p>
+            )}
           </form>
         </Form>
 

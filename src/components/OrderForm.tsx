@@ -50,10 +50,21 @@ const data = [
 ];
 
 const OrderForm = () => {
+
+  const navigate = useNavigate();
+
+    useEffect(() => {
+    const token = localStorage.getItem("rci-token");
+    if (!token) {
+      navigate("/");
+    }
+  }, [navigate]);
+
+
   const [files, setFiles] = useState<File[]>([]);
   const uploadRef = useRef<HTMLInputElement | null>(null);
 
-  const navigate = useNavigate();
+
   const location = useLocation();
 
   const selectedValue =
@@ -73,17 +84,7 @@ const OrderForm = () => {
     },
   });
 
-  useEffect(() => {
-    const token = localStorage.getItem("rci-token");
-    const user = localStorage.getItem("rci-user");
-
-    if (!token || !user) {
-      toast.warning("You must be logged in to access this page.");
-      navigate("/");
-    }
-
-    window.scrollTo(0, 0);
-  }, [navigate]);
+  
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (!files.length) {

@@ -51,7 +51,7 @@ const data = {
     // },
     {
       title: "Orders",
-      url: "#",
+      url: "/admin/orders",
       icon: IconChartBar,
     },
     // {
@@ -61,7 +61,7 @@ const data = {
     // },
     {
       title: "Users",
-      url: "#",
+      url: "/admin/users",
       icon: IconUsers,
     },
   ],
