@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
 
 interface User {
   id: string;
@@ -14,11 +15,13 @@ export default function Users() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
 
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [userIdToDelete, setUserIdToDelete] = useState<string | null>(null);
+
   useEffect(() => {
     const getAllUsers = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/users/all`);
-
+        const response = await axios.get("http://localhost:5000/api/users/all");
         if (response.status === 200 && response.data?.data) {
           const userData = response.data.data.map((item: any) => ({
             id: item._id,
@@ -27,7 +30,6 @@ export default function Users() {
             password: item.password,
             role: item.role,
           }));
-
           setUsers(userData);
         } else {
           setError("No users found");
@@ -44,13 +46,32 @@ export default function Users() {
   }, []);
 
   const handleDelete = (id: string) => {
-    // Placeholder for delete logic
-    console.log("Delete user with ID:", id);
+    setUserIdToDelete(id);
+    setIsDeleteModalOpen(true);
   };
 
-  const handleEdit = (id: string) => {
-    // Placeholder for edit logic
-    console.log("Edit user with ID:", id);
+  const confirmDelete = async () => {
+    if (!userIdToDelete) return;
+
+    try {
+      await axios.delete(`http://localhost:5000/api/users/${userIdToDelete}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("rci-token")}`,
+        },
+      });
+
+      setUsers(prev => prev.filter(user => user.id !== userIdToDelete));
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+    } finally {
+      setIsDeleteModalOpen(false);
+      setUserIdToDelete(null);
+    }
+  };
+
+  const cancelDelete = () => {
+    setIsDeleteModalOpen(false);
+    setUserIdToDelete(null);
   };
 
   return (
@@ -68,22 +89,22 @@ export default function Users() {
           <table className="min-w-full border border-gray-600 rounded-lg">
             <thead>
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider border-b border-gray-600 text-white">
+                <th className="px-6 py-3 text-left text-sm font-semibold border-b border-gray-600 text-white">
                   S:No
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider border-b border-gray-600 text-white">
+                <th className="px-6 py-3 text-left text-sm font-semibold border-b border-gray-600 text-white">
                   Name
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider border-b border-gray-600 text-white">
+                <th className="px-6 py-3 text-left text-sm font-semibold border-b border-gray-600 text-white">
                   Email
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider border-b border-gray-600 text-white">
+                <th className="px-6 py-3 text-left text-sm font-semibold border-b border-gray-600 text-white">
                   Password
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider border-b border-gray-600 text-white">
+                <th className="px-6 py-3 text-left text-sm font-semibold border-b border-gray-600 text-white">
                   Role
                 </th>
-                <th className="px-6 py-3 text-center text-sm font-semibold uppercase tracking-wider border-b border-gray-600 text-white">
+                <th className="px-6 py-3 text-center text-sm font-semibold border-b border-gray-600 text-white">
                   Actions
                 </th>
               </tr>
@@ -108,14 +129,8 @@ export default function Users() {
                   </td>
                   <td className="px-6 py-4 text-center border-b border-gray-700">
                     <button
-                      onClick={() => handleEdit(user.id)}
-                      className="mr-2 rounded bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-500/20"
-                    >
-                      Edit
-                    </button>
-                    <button
                       onClick={() => handleDelete(user.id)}
-                      className="rounded  bg-red-500 px-3 py-1 text-sm text-white hover:bg-red-500/20"
+                      className="rounded bg-red-500 px-3 py-1 text-sm text-white hover:bg-red-500/20"
                     >
                       Delete
                     </button>
@@ -126,6 +141,13 @@ export default function Users() {
           </table>
         </div>
       )}
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        itemName="this user"
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
     </div>
   );
 }

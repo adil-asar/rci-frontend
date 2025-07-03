@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
 interface User {
   id: string;
   name: string;
@@ -14,10 +14,15 @@ export default function Admins() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
 
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [userIdToDelete, setUserIdToDelete] = useState<string | null>(null);
+
   useEffect(() => {
     const getAllAdmins = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/users/all-admins`);
+        const response = await axios.get(
+          `http://localhost:5000/api/users/all-admins`
+        );
 
         if (response.status === 200 && response.data?.data) {
           const userData = response.data.data.map((item: any) => ({
@@ -44,13 +49,32 @@ export default function Admins() {
   }, []);
 
   const handleDelete = (id: string) => {
-    // Placeholder for delete logic
-    console.log("Delete admin with ID:", id);
+    setUserIdToDelete(id);
+    setIsDeleteModalOpen(true);
   };
 
-  const handleEdit = (id: string) => {
-    // Placeholder for edit logic
-    console.log("Edit admin with ID:", id);
+  const confirmDelete = async () => {
+    if (!userIdToDelete) return;
+
+    try {
+      await axios.delete(`http://localhost:5000/api/users/${userIdToDelete}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("rci-token")}`,
+        },
+      });
+
+      setUsers((prev) => prev.filter((user) => user.id !== userIdToDelete));
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+    } finally {
+      setIsDeleteModalOpen(false);
+      setUserIdToDelete(null);
+    }
+  };
+
+  const cancelDelete = () => {
+    setIsDeleteModalOpen(false);
+    setUserIdToDelete(null);
   };
 
   return (
@@ -107,7 +131,6 @@ export default function Admins() {
                     {user.role}
                   </td>
                   <td className="px-6 py-4 text-center border-b border-gray-700">
-                  
                     <button
                       onClick={() => handleDelete(user.id)}
                       className="rounded  bg-red-500 px-3 py-1 text-sm text-white hover:bg-red-500/20"
@@ -121,6 +144,13 @@ export default function Admins() {
           </table>
         </div>
       )}
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        itemName="this user"
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
     </div>
   );
 }

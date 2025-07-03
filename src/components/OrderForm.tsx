@@ -26,14 +26,18 @@ import { toast } from "sonner";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 
+// Updated schema
 const formSchema = z.object({
   username: z.string().min(2).max(50),
   email: z.string().email({ message: "Please enter a valid Email." }),
-  message: z.string().nonempty({ message: "This Field Cannot be Empty." }),
-  phone: z.string().min(10, { message: "Phone is a required field." }).max(15),
-  address: z.string().min(2, { message: "Address is a required field." }),
-  state: z.string(),
+  phone: z.string().min(10).max(15),
+  address: z.string().min(2),
   city: z.string(),
+  state: z.string(),
+  deliveryAddress: z.string().min(2),
+  deliveryCity: z.string(),
+  deliveryState: z.string(),
+  message: z.string().nonempty(),
   select: z.enum(["PSLP", "PDSS", "TB", "EDD", "FDC", "LCS"]),
 });
 
@@ -50,21 +54,9 @@ const data = [
 ];
 
 const OrderForm = () => {
-
   const navigate = useNavigate();
-
-    useEffect(() => {
-    const token = localStorage.getItem("rci-token");
-    if (!token) {
-      navigate("/");
-    }
-  }, [navigate]);
-
-
   const [files, setFiles] = useState<File[]>([]);
   const uploadRef = useRef<HTMLInputElement | null>(null);
-
-
   const location = useLocation();
 
   const selectedValue =
@@ -75,18 +67,26 @@ const OrderForm = () => {
     defaultValues: {
       username: "",
       email: "",
-      message: "",
       phone: "",
       address: "",
-      state: "",
       city: "",
+      state: "",
+      deliveryAddress: "",
+      deliveryCity: "",
+      deliveryState: "",
+      message: "",
       select: selectedValue as z.infer<typeof formSchema>["select"],
     },
   });
 
-  
+  useEffect(() => {
+    const token = localStorage.getItem("rci-token");
+    if (!token) {
+      navigate("/");
+    }
+  }, [navigate]);
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!files.length) {
       toast.warning("File is Required.", {
         description: "Upload File(s) before submitting form.",
@@ -99,52 +99,49 @@ const OrderForm = () => {
     formData.append("phone", values.phone);
     formData.append("email", values.email);
     formData.append("address", values.address);
-    formData.append("state", values.state);
     formData.append("city", values.city);
+    formData.append("state", values.state);
+    formData.append("deliveryAddress", values.deliveryAddress);
+    formData.append("deliveryCity", values.deliveryCity);
+    formData.append("deliveryState", values.deliveryState);
     formData.append("message", values.message);
     formData.append("service", values.select);
 
-    // Append all selected files
     files.forEach((file) => {
-      formData.append("documents", file); 
+      formData.append("documents", file);
     });
 
     const url = `http://localhost:5000/api/orders/create`;
     const token = localStorage.getItem("rci-token");
 
-    axios
-      .post(url, formData, {
+    try {
+      const response = await axios.post(url, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
-      })
-      .then((response) => {
-        if (response?.status === 201) {
-          toast.success("Form Submitted Successfully.", {
-            description: "Check Your Email to Download the Form.",
-          });
-          setTimeout(() => {
-            navigate("/");
-          }, 1000);
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-        const errMsg = error?.response?.data?.message || "Submission failed";
-        toast.error(errMsg.includes("duplicate") ? "Email Already Exist" : errMsg);
       });
+
+      if (response.status === 201) {
+        toast.success("Form Submitted Successfully.", {
+          description: "Check Your Email to Download the Form.",
+        });
+        setTimeout(() => {
+          navigate("/");
+        }, 1000);
+      }
+    } catch (error: any) {
+      const errMsg = error?.response?.data?.message || "Submission failed";
+      toast.error(errMsg.includes("duplicate") ? "Email Already Exist" : errMsg);
+    }
   };
 
-  const handleRef = () => {
-    uploadRef.current?.click();
-  };
+  const handleRef = () => uploadRef.current?.click();
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = event.target.files;
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = e.target.files;
     if (selectedFiles) {
       setFiles(Array.from(selectedFiles));
-      console.log("Selected files:", selectedFiles);
     }
   };
 
@@ -157,14 +154,18 @@ const OrderForm = () => {
         <div className="w-full">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              {/* All Form Fields Here */}
+
+              {/* Basic Fields */}
               {[
                 ["username", "Name:"],
                 ["email", "Email:"],
                 ["phone", "Phone:"],
-                ["address", "Address:"],
-                ["state", "State:"],
-                ["city", "City:"],
+                ["address", "Your Address:"],
+                ["city", "Your City:"],
+                ["state", "Your State:"],
+                ["deliveryAddress", "Delivery Address:"],
+                ["deliveryCity", "Delivery City:"],
+                ["deliveryState", "Delivery State:"],
               ].map(([name, label]) => (
                 <FormField
                   key={name}
@@ -217,8 +218,8 @@ const OrderForm = () => {
                     <FormLabel className="text-sm font-semibold">How can we help?</FormLabel>
                     <FormControl>
                       <Textarea
-                        style={{ minHeight: 100, maxHeight: 200 }}
                         placeholder="Enter Your Message Here..."
+                        style={{ minHeight: 100, maxHeight: 200 }}
                         {...field}
                       />
                     </FormControl>
@@ -240,10 +241,12 @@ const OrderForm = () => {
               </div>
 
               <Button
-                className="flex flex-row items-center w-full cursor-pointer font-medium bg-zinc-400 text-zinc-900 uppercase tracking-widest p-6"
+                className="flex flex-row items-center w-full font-medium bg-zinc-400 text-zinc-900 uppercase tracking-widest p-6"
                 type="submit"
+                disabled={form.formState.isSubmitting}
               >
-                Submit <Send className="ml-2" />
+                {form.formState.isSubmitting ? "Processing..." : "Submit"}
+                {!form.formState.isSubmitting && <Send className="ml-2" />}
               </Button>
             </form>
           </Form>

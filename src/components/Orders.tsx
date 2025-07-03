@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FaEdit, FaTrash, FaEye } from "react-icons/fa";
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
+
 
 export interface Order {
   _id: string;
@@ -12,6 +14,9 @@ export interface Order {
   state: string;
   address: string;
   message?: string;
+  deliveryAddress?: string;
+  deliveryCity?: string;
+  deliveryState?: string;
   documents: string[];
   createdAt: string;
   userInfo?: {
@@ -27,6 +32,9 @@ export default function Orders() {
   const [error, setError] = useState<string>("");
   const [viewOrder, setViewOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [userIdToDelete, setUserIdToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     const getAllOrders = async () => {
@@ -54,13 +62,35 @@ export default function Orders() {
     getAllOrders();
   }, []);
 
-  const handleDelete = (id: string) => {
-    console.log("Delete order with ID:", id);
+ const handleDelete = (id: string) => {
+    setUserIdToDelete(id);
+    setIsDeleteModalOpen(true);
   };
 
-  const handleEdit = (id: string) => {
-    console.log("Edit order with ID:", id);
+  const confirmDelete = async () => {
+    if (!userIdToDelete) return;
+
+    try {
+      await axios.delete(`http://localhost:5000/api/orders/${userIdToDelete}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("rci-token")}`,
+        },
+      });
+
+      setOrders((prev) => prev.filter((order) => order._id !== userIdToDelete));
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+    } finally {
+      setIsDeleteModalOpen(false);
+      setUserIdToDelete(null);
+    }
   };
+
+  const cancelDelete = () => {
+    setIsDeleteModalOpen(false);
+    setUserIdToDelete(null);
+  };
+
 
   const handleView = (order: Order) => {
     setViewOrder(order);
@@ -137,10 +167,16 @@ export default function Orders() {
         <p><strong>Name:</strong> {viewOrder.name}</p>
         <p><strong>Email:</strong> {viewOrder.email}</p>
         <p><strong>Phone:</strong> {viewOrder.phone}</p>
-        <p><strong>Service:</strong> {viewOrder.service}</p>
-        <p><strong>City:</strong> {viewOrder.city}</p>
-        <p><strong>State:</strong> {viewOrder.state}</p>
-        <p><strong>Address:</strong> {viewOrder.address}</p>
+        
+          <p><strong> Your Address:</strong> {viewOrder.address}</p>
+        <p><strong> Your City:</strong> {viewOrder.city}</p>
+        <p><strong> Your State:</strong> {viewOrder.state}</p>
+      <p><strong>Selected Service:</strong> {viewOrder.service}</p>
+         <p><strong> Delivery Address:</strong> {viewOrder.deliveryAddress || "N/A"}</p>
+       <p><strong> Delivery City:</strong> {viewOrder.deliveryCity || "N/A"}</p>
+        <p><strong> Delivery State:</strong> {viewOrder.deliveryState || "N/A"}</p>
+
+
         <p><strong>Message:</strong> {viewOrder.message || "N/A"}</p>
         <p><strong>Created At:</strong> {new Date(viewOrder.createdAt).toLocaleString()}</p>
         <p><strong>User:</strong> {viewOrder.userInfo?.username || "N/A"}</p>
@@ -178,6 +214,13 @@ export default function Orders() {
     </div>
   </div>
 )}
+
+  <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        itemName="this user"
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
 
     </div>
   );
