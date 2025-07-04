@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 import rciLogo from "../assets/rciLogo.png";
 import { FaFacebook } from "react-icons/fa6";
 import { FaInstagram, FaLinkedin } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
+import GoogleAuthButton from "./GoogleAuthButton";
 import { useState } from "react";
 import axios from "axios";
 
@@ -30,17 +30,7 @@ const SignUp = () => {
 
   const [isloading, setIsLoading] = useState<boolean>(false);
 
-  const handleGoogleLogin = () => {
-    try {
-      setIsLoading(true);
-      const googleLoginUrl = `http://localhost:5000/api/users/auth/google`; // change if needed
-      window.location.href = googleLoginUrl;
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -182,14 +172,7 @@ const SignUp = () => {
               <div className="h-[2px] w-full bg-zinc-700" />
             </div>
 
-            <Button
-              className="w-full flex items-center justify-center gap-2 bg-zinc-100 text-zinc-900 uppercase tracking-widest font-bold rounded-xs cursor-pointer"
-              type="button"
-              onClick={handleGoogleLogin}
-              disabled={isloading}
-            >
-              Continue with Google <FcGoogle size={20} />
-            </Button>
+            <GoogleAuthButton />
 
             <p className="text-center text-sm">
               Already have an account?{" "}

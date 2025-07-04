@@ -5,7 +5,7 @@ import {
   createBrowserRouter,
   createRoutesFromElements,
 } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Navbar from "./components/Navbar";
 import Home from "./components/Home";
 import Footer from "./components/Footer";
@@ -19,25 +19,20 @@ import AdminDashboard from "./components/AdminDashboard";
 import NotFound404 from "./components/NotFound404";
 import { Toaster } from "@/components/ui/sonner";
 import { Theme, ThemeContext } from "./components/global/Context";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const Layout = () => {
   const handleLogout = async () => {
-    try {
-      localStorage.removeItem("rci-user");
-      localStorage.removeItem("rci-token");
-      window.location.href = "/signin";
-    } catch (error) {
-      console.error(error);
-    }
+    localStorage.removeItem("rci-user");
+    localStorage.removeItem("rci-token");
+    window.location.href = "/signin";
   };
-
- 
 
   return (
     <>
       <Toaster richColors position="top-right" />
       <div className="home scroll-smooth">
-        <Navbar handleLogout={handleLogout}  />
+        <Navbar handleLogout={handleLogout} />
         <Outlet />
         <Footer />
       </div>
@@ -47,9 +42,6 @@ const Layout = () => {
 
 function App() {
   const [theme, setTheme] = useState<Theme>("dark");
-  // const token = localStorage.getItem('rci-token');
-  // const userData = localStorage.getItem('rci-user');
-  // const user = userData ? userData : null;
 
   const routes = createRoutesFromElements(
     <Route>
@@ -59,10 +51,9 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/ordernow/:id" element={<OrderForm />} />
         <Route path="/404NotFound" element={<NotFound404 />} />
-
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/contact" element={<Contact />} />
       </Route>
-
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/success-login" element={<SuccessLogin />} />
@@ -72,15 +63,13 @@ function App() {
   const router = createBrowserRouter(routes);
 
   return (
-    <ThemeContext.Provider value={{ setTheme, theme }}>
-      <div
-        className={`font-primary tracking-wider overflow-hidden scroll-smooth bg-drk-color ${
-          theme === "light" ? "" : "dark"
-        }`}
-      >
-        <RouterProvider router={router} />
-      </div>
-    </ThemeContext.Provider>
+    <GoogleOAuthProvider clientId="1039328786603-e14ec2dg5gk29ulh4spd1c9pu65s002t.apps.googleusercontent.com">
+      <ThemeContext.Provider value={{ setTheme, theme }}>
+        <div className={`font-primary tracking-wider overflow-hidden scroll-smooth bg-drk-color ${theme === "light" ? "" : "dark"}`}>
+          <RouterProvider router={router} />
+        </div>
+      </ThemeContext.Provider>
+    </GoogleOAuthProvider>
   );
 }
 

@@ -16,8 +16,12 @@ import { FaFacebook } from "react-icons/fa6";
 import { FaInstagram, FaLinkedin } from "react-icons/fa";
 import rciLogo from "../assets/rciLogo.png";
 import { useEffect, useState } from "react";
-import { FcGoogle } from "react-icons/fc";
+
 import axios from "axios";
+import GoogleAuthButton from "./GoogleAuthButton";
+
+
+
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please Enter a valid Email." }),
@@ -37,18 +41,7 @@ const SignIn = () => {
     },
   });
 
-  const handleGoogleLogin = () => {
-    try {
-      setIsLoading(true);
-      const googleLoginUrl = `http://localhost:5000/api/users/auth/google`;
-      window.location.href = googleLoginUrl;
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+ 
   const openInNewTab = (url: string) => {
     window.open(url, "_blank", "noopener,noreferrer");
   };
@@ -80,7 +73,7 @@ const SignIn = () => {
           if (user.role === "admin") {
             navigate("/admin");
           } else {
-            navigate("/");
+            navigate("/ordernow/PrintingServicesforLegalProfessionals");
           }
         } else {
           setLoginError("User validation failed.");
@@ -102,6 +95,9 @@ const SignIn = () => {
       setIsLoading(false);
     }
   };
+
+
+  
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
@@ -189,14 +185,7 @@ const SignIn = () => {
         </div>
 
         <div className="space-y-6 pt-4">
-          <Button
-            className="w-full bg-zinc-100 text-zinc-900 uppercase tracking-widest font-bold flex items-center justify-center gap-2 cursor-pointer"
-            type="button"
-            onClick={handleGoogleLogin}
-            disabled={isLoading}
-          >
-            Continue with Google <FcGoogle size={20} />
-          </Button>
+      <GoogleAuthButton />
           <p className="text-center text-sm">
             Don't have an account?
             <span
