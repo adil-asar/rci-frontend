@@ -20,6 +20,7 @@ import NotFound404 from "./components/NotFound404";
 import { Toaster } from "@/components/ui/sonner";
 import { Theme, ThemeContext } from "./components/global/Context";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import VerifyEmailPage from "./components/VerifyEmail";
 
 const Layout = () => {
   const handleLogout = async () => {
@@ -53,6 +54,7 @@ function App() {
         <Route path="/404NotFound" element={<NotFound404 />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/contact" element={<Contact />} />
+           <Route path="/verify-email" element={<VerifyEmailPage />} />
       </Route>
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />

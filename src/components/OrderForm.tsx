@@ -38,19 +38,34 @@ const formSchema = z.object({
   deliveryCity: z.string(),
   deliveryState: z.string(),
   message: z.string().nonempty(),
-  select: z.enum(["PSLP", "PDSS", "TB", "EDD", "FDC", "LCS"]),
+  select: z.enum(["Printing Services for Legal Professionals", "Paper Discovery & Scanning Services", "Trial Boards", "Electronic Data Discovery (EDD)", "Forensic Data Collection", "Litigation Consulting Services"]),
 });
 
 const data = [
-  { name: "Printing Services for Legal Professionals", value: "PSLP" },
-  { name: "Paper Discovery & Scanning Services", value: "PDSS" },
-  { name: "Trial Boards", value: "TB" },
+  { 
+    name: "Printing Services for Legal Professionals", 
+    value: "Printing Services for Legal Professionals"
+   },
+  {
+     name: "Paper Discovery & Scanning Services", 
+     value: "Paper Discovery & Scanning Services"
+     },
+  { 
+    name: "Trial Boards",
+     value: "Trial Boards" 
+    },
   {
     name: "Electronic Data Discovery (EDD) & Early Case Assessment",
-    value: "EDD",
+    value: "Electronic Data Discovery (EDD) & Early Case Assessment",
   },
-  { name: "Forensic Data Collection", value: "FDC" },
-  { name: "Litigation Consulting Services", value: "LCS" },
+  { 
+    name: "Forensic Data Collection", 
+    value: "Forensic Data Collection" 
+  },
+  {
+     name: "Litigation Consulting Services",
+      value: "Litigation Consulting Services" 
+    },
 ];
 
 const OrderForm = () => {
@@ -60,7 +75,7 @@ const OrderForm = () => {
   const location = useLocation();
 
   const selectedValue =
-    data.find((item) => item.name === location?.state?.title)?.value || "LCS";
+    data.find((item) => item.name === location?.state?.title)?.value || "Litigation Consulting Services";
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
