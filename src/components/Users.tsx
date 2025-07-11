@@ -21,7 +21,7 @@ export default function Users() {
   useEffect(() => {
     const getAllUsers = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/users/all");
+        const response = await axios.get("http://147.93.86.63:5000/api/users/all");
         if (response.status === 200 && response.data?.data) {
           const userData = response.data.data.map((item: any) => ({
             id: item._id,
@@ -54,7 +54,7 @@ export default function Users() {
     if (!userIdToDelete) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/users/${userIdToDelete}`, {
+      await axios.delete(`http://147.93.86.63:5000/api/users/${userIdToDelete}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("rci-token")}`,
         },

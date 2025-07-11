@@ -114,7 +114,7 @@ const OurServices = () => {
       <Dialog open={modal} onOpenChange={onClose}  >
         <DialogContent className="bg-zinc-800 border-zinc-800 text-zinc-400" >
           <DialogHeader>
-            <DialogTitle>Login Error</DialogTitle>
+            <DialogTitle>Welcome to RCI</DialogTitle>
             <DialogDescription>
               Please Sign in or Sign up Before Continue.
             </DialogDescription>

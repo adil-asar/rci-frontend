@@ -15,7 +15,7 @@ const navbar = [
     { title: 'About', to: 'about' },
     { title: 'Services', to: 'services' },
     { title: 'Why Choose Us', to: 'whychooseus' },
-    { title: 'Contact', to: 'contact' },
+    
 ];
 
 const Footer = () => {
@@ -136,7 +136,15 @@ const Footer = () => {
                                                     {item?.title}
                                                 </Link>
                                             </p>
+                                            
                                         ))}
+                                         <p  className='text-sm cursor-pointer hover:underline' >
+                                                <button
+                                                    onClick={()=> navigate('/contact')}
+                                                >
+                                                    Contact
+                                                </button>
+                                            </p>
                                     </div>
                                     {/* <div className='flex flex-col gap-5 w-full sm:w-auto' >
                                 <h3 className='text-2xl' >Support</h3>

@@ -51,7 +51,7 @@ const SignIn = () => {
     setLoginError(""); // Reset error on submit
 
     try {
-      const loginRes = await axios.post("http://localhost:5000/api/users/signin", {
+      const loginRes = await axios.post("http://147.93.86.63:5000/users/signin", {
         email: values.email,
         password: values.password,
       });
@@ -60,7 +60,7 @@ const SignIn = () => {
         const token = loginRes.data.user_Token;
         localStorage.setItem("rci-token", token);
 
-        const userRes = await axios.get("http://localhost:5000/api/users/validate", {
+        const userRes = await axios.get("http://147.93.86.63:5000/api/users/validate", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -82,13 +82,20 @@ const SignIn = () => {
         setLoginError("Login failed. No token received.");
       }
     } catch (loginError) {
-      if (axios.isAxiosError(loginError)) {
-        const msg =
-          loginError.response?.data?.message ||
-          loginError.response?.data?.error ||
-          "Login failed. Please try again.";
-        setLoginError(msg);
-      } else {
+     if (axios.isAxiosError(loginError)) {
+  const errorResponse = loginError.response?.data;
+
+  if (typeof errorResponse === "string") {
+    setLoginError(errorResponse); 
+  } else if (errorResponse?.message) {
+    setLoginError(errorResponse.message); 
+  } else if (errorResponse?.error) {
+    setLoginError(errorResponse.error); 
+  } else {
+    setLoginError("Login failed. Please try again.");
+  }
+}
+else {
         setLoginError("An unexpected error occurred.");
       }
     } finally {
@@ -173,7 +180,7 @@ const SignIn = () => {
 
             {/* Error message under Sign In */}
             {loginError && (
-              <p className="text-red-500 text-sm text-center">{loginError}</p>
+              <p className="text-red-500 text-xs text-center">{loginError}</p>
             )}
           </form>
         </Form>

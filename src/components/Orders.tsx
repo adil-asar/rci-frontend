@@ -39,7 +39,7 @@ export default function Orders() {
   useEffect(() => {
     const getAllOrders = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/orders/all", {
+        const response = await axios.get("http://147.93.86.63:5000/api/orders/all", {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("rci-token")}`,
@@ -71,7 +71,7 @@ export default function Orders() {
     if (!userIdToDelete) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/orders/${userIdToDelete}`, {
+      await axios.delete(`http://147.93.86.63:5000/api/orders/${userIdToDelete}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("rci-token")}`,
         },

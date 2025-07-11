@@ -18,7 +18,7 @@ const GoogleAuthButton = ({
 
   const handleLoginSuccess = async (response: any) => {
     try {
-      const res = await axios.post("http://localhost:5000/api/users/google-signin", {
+      const res = await axios.post("http://147.93.86.63:5000/api/users/google-signin", {
         token: response.credential,
       });
 

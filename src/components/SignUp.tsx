@@ -19,18 +19,25 @@ import GoogleAuthButton from "./GoogleAuthButton";
 import { useState } from "react";
 import axios from "axios";
 
+
+// http://147.93.86.63:5000/  this is our new api url 
+
 const formSchema = z.object({
-  username: z.string().nonempty({ message: "Please Enter a username." }).max(10),
+  username: z
+    .string()
+    .nonempty({ message: "Please Enter a username." })
+    .max(10),
   email: z.string().email({ message: "Please Enter a valid Email." }),
-  password: z.string().min(8, { message: "Password length must be greater and equal to 8." }),
+  password: z
+    .string()
+    .min(8, { message: "Password length must be greater and equal to 8." }),
 });
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const [signupError, setSignupError] = useState<string>("");
 
   const [isloading, setIsLoading] = useState<boolean>(false);
-
-  
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -42,24 +49,36 @@ const SignUp = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setSignupError(""); // Reset previous error
     try {
       setIsLoading(true);
 
-      const response = await axios.post("http://localhost:5000/api/users/signup", {
-        username: values.username,
-        email: values.email,
-        password: values.password,
-      });
+      const response = await axios.post(
+        "http://147.93.86.63:5000/api/users/signup",
+        {
+          username: values.username,
+          email: values.email,
+          password: values.password,
+        }
+      );
 
       console.log("Signup successful:", response.data);
-
-      // Navigate to sign-in page on success
       navigate("/signin");
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error("API Error:", error.response?.data || error.message);
+        const data = error.response?.data;
+
+        if (typeof data === "string") {
+          setSignupError(data);
+        } else if (data?.message) {
+          setSignupError(data.message);
+        } else if (data?.error) {
+          setSignupError(data.error);
+        } else {
+          setSignupError("Signup failed. Please try again.");
+        }
       } else {
-        console.error("Unexpected error:", error);
+        setSignupError("An unexpected error occurred.");
       }
     } finally {
       setIsLoading(false);
@@ -77,8 +96,15 @@ const SignUp = () => {
   return (
     <div className="text-zinc-400 w-full min-h-screen flex items-center justify-center relative px-4 sm:px-6">
       {/* Logo */}
-      <div className="absolute top-4 left-4 sm:top-6 sm:left-6 cursor-pointer" onClick={() => handleNavigate("/")}>
-        <img src={rciLogo} alt="rciLogo" className="w-28 sm:w-36 object-cover" />
+      <div
+        className="absolute top-4 left-4 sm:top-6 sm:left-6 cursor-pointer"
+        onClick={() => handleNavigate("/")}
+      >
+        <img
+          src={rciLogo}
+          alt="rciLogo"
+          className="w-28 sm:w-36 object-cover"
+        />
       </div>
 
       {/* Social Icons */}
@@ -106,8 +132,12 @@ const SignUp = () => {
       {/* Form Container */}
       <div className="w-full max-w-lg bg-zinc-800 text-zinc-400 p-6 sm:p-10 md:p-12 rounded-md space-y-6">
         <div className="space-y-2">
-          <p className="text-md sm:text-lg md:text-xl font-bold text-start">Create a new account</p>
-          <p className="text-start text-xs sm:text-sm">Welcome back! Please enter your details.</p>
+          <p className="text-md sm:text-lg md:text-xl font-bold text-start">
+            Create a new account
+          </p>
+          <p className="text-start text-xs sm:text-sm">
+            Welcome back! Please enter your details.
+          </p>
         </div>
 
         <Form {...form}>
@@ -117,7 +147,9 @@ const SignUp = () => {
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-semibold">Username:</FormLabel>
+                  <FormLabel className="text-sm font-semibold">
+                    Username:
+                  </FormLabel>
                   <FormControl>
                     <Input placeholder="Your username" {...field} />
                   </FormControl>
@@ -130,7 +162,9 @@ const SignUp = () => {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-semibold">Email:</FormLabel>
+                  <FormLabel className="text-sm font-semibold">
+                    Email:
+                  </FormLabel>
                   <FormControl>
                     <Input placeholder="Your email" {...field} />
                   </FormControl>
@@ -143,9 +177,15 @@ const SignUp = () => {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-semibold">Password:</FormLabel>
+                  <FormLabel className="text-sm font-semibold">
+                    Password:
+                  </FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="Your password" {...field} />
+                    <Input
+                      type="password"
+                      placeholder="Your password"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -154,8 +194,14 @@ const SignUp = () => {
 
             <p className="text-xs text-center leading-snug">
               By creating an account, you agree to our{" "}
-              <span className="font-bold cursor-pointer hover:underline">Terms & Conditions</span> and{" "}
-              <span className="font-bold cursor-pointer hover:underline">Privacy Policy</span>.
+              <span className="font-bold cursor-pointer hover:underline">
+                Terms & Conditions
+              </span>{" "}
+              and{" "}
+              <span className="font-bold cursor-pointer hover:underline">
+                Privacy Policy
+              </span>
+              .
             </p>
 
             <Button
@@ -165,6 +211,10 @@ const SignUp = () => {
             >
               {isloading ? "Signing up..." : "Sign up"}
             </Button>
+
+             {signupError && (
+            <p className="text-red-500 text-xs text-center">{signupError}</p>
+          )}
 
             <div className="flex items-center justify-center gap-5">
               <div className="h-[2px] w-full bg-zinc-700" />
@@ -176,11 +226,15 @@ const SignUp = () => {
 
             <p className="text-center text-sm">
               Already have an account?{" "}
-              <span className="font-bold hover:underline cursor-pointer" onClick={() => handleNavigate("/signin")}>
+              <span
+                className="font-bold hover:underline cursor-pointer"
+                onClick={() => handleNavigate("/signin")}
+              >
                 Sign in
               </span>
             </p>
           </form>
+         
         </Form>
       </div>
     </div>
