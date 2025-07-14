@@ -49,7 +49,7 @@ const SignUp = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    setSignupError(""); // Reset previous error
+    setSignupError(""); 
     try {
       setIsLoading(true);
 

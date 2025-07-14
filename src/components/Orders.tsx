@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import axios from "axios";
-import { FaEdit, FaTrash, FaEye } from "react-icons/fa";
+import { FaTrash, FaEye } from "react-icons/fa";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 
 

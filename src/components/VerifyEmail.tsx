@@ -30,7 +30,7 @@ const VerifyEmailPage = () => {
 
 
       setStatus(res.data.message || "Email verified successfully!");
-    } catch (err) {
+    } catch (err:any) {
       console.error(err);
       setStatus(
         err.response?.data?.message ||
