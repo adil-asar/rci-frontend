@@ -21,7 +21,7 @@ export default function Admins() {
     const getAllAdmins = async () => {
       try {
         const response = await axios.get(
-          `http://147.93.86.63:5000/api/users/all-admins`
+          `https://api.replicacopyindustries.com/api/users/all-admins`
         );
 
         if (response.status === 200 && response.data?.data) {
@@ -57,7 +57,7 @@ export default function Admins() {
     if (!userIdToDelete) return;
 
     try {
-      await axios.delete(`http://147.93.86.63:5000/api/users/${userIdToDelete}`, {
+      await axios.delete(`https://api.replicacopyindustries.com/api/users/${userIdToDelete}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("rci-token")}`,
         },

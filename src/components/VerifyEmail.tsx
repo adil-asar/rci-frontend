@@ -19,7 +19,7 @@ const VerifyEmailPage = () => {
 
       setIsVerifying(true);
     const res = await axios.post(
-  "http://localhost:5000/api/users/verify-email",
+  "https://api.replicacopyindustries.com/api/users/verify-email",
   {}, 
   {
     headers: {

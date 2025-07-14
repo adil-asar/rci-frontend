@@ -51,7 +51,7 @@ const SignIn = () => {
     setLoginError(""); // Reset error on submit
 
     try {
-      const loginRes = await axios.post("http://147.93.86.63:5000/users/signin", {
+      const loginRes = await axios.post("https://api.replicacopyindustries.com/users/signin", {
         email: values.email,
         password: values.password,
       });
@@ -60,7 +60,7 @@ const SignIn = () => {
         const token = loginRes.data.user_Token;
         localStorage.setItem("rci-token", token);
 
-        const userRes = await axios.get("http://147.93.86.63:5000/api/users/validate", {
+        const userRes = await axios.get("https://api.replicacopyindustries.com/api/users/validate", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

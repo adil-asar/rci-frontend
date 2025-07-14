@@ -126,7 +126,7 @@ const OrderForm = () => {
       formData.append("documents", file);
     });
 
-    const url = `http://localhost:5000/api/orders/create`;
+    const url = `https://api.replicacopyindustries.com/api/orders/create`;
     const token = localStorage.getItem("rci-token");
 
     try {

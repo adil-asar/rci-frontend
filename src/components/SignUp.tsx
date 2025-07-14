@@ -54,7 +54,7 @@ const SignUp = () => {
       setIsLoading(true);
 
       const response = await axios.post(
-        "http://147.93.86.63:5000/api/users/signup",
+        "https://api.replicacopyindustries.com/api/users/signup",
         {
           username: values.username,
           email: values.email,
