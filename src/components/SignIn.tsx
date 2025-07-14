@@ -51,7 +51,7 @@ const SignIn = () => {
     setLoginError(""); // Reset error on submit
 
     try {
-      const loginRes = await axios.post("https://api.replicacopyindustries.com/users/signin", {
+      const loginRes = await axios.post("https://api.replicacopyindustries.com/api/users/signin", {
         email: values.email,
         password: values.password,
       });
